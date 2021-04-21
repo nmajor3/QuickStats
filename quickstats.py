@@ -355,3 +355,5 @@ for h in campaignCharacter:
     print(ele.allSkillsBlock())
     print(ele.allSpellsBlock())
     print('\n=========================================================')
+
+driver.close()
