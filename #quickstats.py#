@@ -228,6 +228,12 @@ class ElementActions(ChildElements):
 
     def getProficiencyBonus(self):
         return f'+{self.children.proficiencyBonus().text}'
+
+    def getAttributeNames(self):
+        attributeList = []
+        for i in (self.children.attributeNames()):
+            attributeList.append(f'{i.text[0:3]}')
+        return attributeList
         
     def combineSign(self, sign, integer):
         if (sign == '-'):
@@ -246,12 +252,6 @@ class ElementActions(ChildElements):
             return False
         else:
             return True
-
-    def getAttributeNames(self):
-        attributeList = []
-        for i in (self.children.attributeNames()):
-            attributeList.append(f'{i.text[0:3]}')
-        return attributeList
 
     def getSaveNames(self):
         saveList = []
