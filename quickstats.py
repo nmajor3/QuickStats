@@ -26,7 +26,6 @@ os.system('clear')
 #Zaag - 14820702
 #Qrix - 29117600
 
-
 campaignCharacter =  [354350, 298736, 354348, 23559244, 10788708, 607240]
 standardWaitInSeconds = 10
 driver = webdriver.Chrome()
@@ -64,9 +63,6 @@ class ParentElements:
             if ele.text == saveName:
                 return i
                                                                  
-    #def skillsParent(self):
-    #    return waitForElementXpath(standardWaitInSeconds,'//section/div/div/div[2]/div/div[3]/div[4]/div[1]/div[2]')
-
     def skillsParent(self):
         return driver.find_element_by_xpath('//section/div/div/div[2]/div/div[3]/div[4]/div[1]/div[2]')
     
