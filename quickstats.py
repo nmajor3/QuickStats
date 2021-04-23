@@ -7,7 +7,6 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import os
-import namer_module
 os.system('clear')
 
 # Character IDs:
@@ -25,22 +24,29 @@ os.system('clear')
 #Komazur - 14820665
 #Zaag - 14820702
 #Qrix - 29117600
+#Cloron - 14820937
 
-campaignCharacter =  [354350, 298736, 354348, 23559244, 10788708, 607240]
+campaignCharacter =  [14820937, 14820665]#354350, 298736, 354348, 23559244, 10788708, 607240]
 standardWaitInSeconds = 10
-driver = webdriver.Chrome()
+options = Options()
+options.add_argument("--window-size=1920,1080")
+options.add_argument('--headless')
+driver = webdriver.Chrome(options=options)
 driver.implicitly_wait(0)
-driver.set_window_size(1920, 1080)
+
    
 def waitForElementXpath(waitTimeInSeconds, Xpath):
     return WebDriverWait(driver, waitTimeInSeconds).until(EC.presence_of_element_located((By.XPATH, Xpath)))
+
+def waitForElementCssSelector(waitTimeInSeconds, CssSelector):
+    return WebDriverWait(driver, waitTimeInSeconds).until(EC.presence_of_element_located((By.CSS_SELECTOR, CssSelector)))
 
 class ParentElements:
     def __init__(self):
         pass
     
     def quickInfoParent(self):
-        return  waitForElementXpath(standardWaitInSeconds,'//section/div[1]/div/div[2]/div/div[2]')
+        return  waitForElementCssSelector(standardWaitInSeconds,'.ct-quick-info')
                                   
     def attributesCollectionParent(self):
         return self.quickInfoParent().find_elements_by_xpath('./div[1]/div')
@@ -70,7 +76,7 @@ class ParentElements:
         return self.skillsParent().find_elements_by_xpath('./div[2]/div[@class="ct-skills__item"]')
                 
     def skillByName(self, skillName):
-        for i in (self.skillsCollectionParent()):
+        for i in (driver.find_elements_by_css_selector('div.ct-skills__item')):
             ele = i.find_element_by_xpath('./div[3]')
             if ele.text == skillName:
                 return i
@@ -116,44 +122,24 @@ class ChildElements(ParentElements):
             attributeNameList.append(i.find_element_by_xpath('./div/div[2]/span[1]'))
         return attributeNameList
     
-    def _attributeBonusBigSign(self, attrName):
-        return self.parent.attributeByName(attrName).find_element_by_xpath('./div/div[3]/span/span[1]')
+    def attributeBonusSign(self, attrName):
+        return self.parent.attributeByName(attrName).find_element_by_css_selector('div.ct-quick-info__ability > div:nth-child(1) > div > span > span:nth-child(1)')
     
-    def _attributeBonusBigNumber(self, attrName):
-        return self.parent.attributeByName(attrName).find_element_by_xpath('./div/div[3]/span/span[2]')
-
-    def _attributeBonusSmallSign(self, attrName):
-        return self.parent.attributeByName(attrName).find_element_by_xpath('./div/div[4]/span/span[1]')
-
-    def _attributeBonusSmallNumber(self, attrName):
-        return self.parent.attributeByName(attrName).find_element_by_xpath('./div/div[4]/span/span[2]')
+    def attributeBonusNumber(self, attrName):
+        return self.parent.attributeByName(attrName).find_element_by_css_selector('div.ct-quick-info__ability > div:nth-child(1) > div > span > span:nth-child(2)')
                                                      
     def _attributeBigScore(self, attrName):
-        return self.parent.attributeByName(attrName).find_element_by_xpath('./div/div[3]')
+        return self.parent.attributeByName(attrName).find_element_by_css_selector('div.ct-quick-info__ability > div:nth-child(1) > div:nth-child(3)')
 
     def _attributeSmallScore(self, attrName):
-        return self.parent.attributeByName(attrName).find_element_by_xpath('./div/div[4]')
-    
-    def attributeBonusSign(self, attrName):
-        try:
-            ele =  self._attributeBonusBigSign(attrName)
-            return ele
-        except NoSuchElementException:
-            return self._attributeBonusSmallSign(attrName)
-
-    def attributeBonusNumber(self, attrName):
-        try:
-            ele = self._attributeBonusBigNumber(attrName)
-            return ele
-        except NoSuchElementException:
-            return self._attributeBonusSmallNumber(attrName)
+        return self.parent.attributeByName(attrName).find_element_by_css_selector('div.ct-quick-info__ability > div:nth-child(1) > div:nth-child(4)')
 
     def attributeScore(self, attrName):
         try:
-            ele = self._attributeBonusBigSign(attrName)
-            return self._attributeSmallScore(attrName)
-        except NoSuchElementException:
+            ele = int(self._attributeBigScore(attrName).text)
             return self._attributeBigScore(attrName)
+        except ValueError:
+            return self._attributeSmallScore(attrName)
 
     def saveNames(self):
         saveNamesList = []
@@ -228,6 +214,12 @@ class ElementActions(ChildElements):
 
     def getProficiencyBonus(self):
         return f'+{self.children.proficiencyBonus().text}'
+
+    def getAttributeNames(self):
+        attributeList = []
+        for i in (self.children.attributeNames()):
+            attributeList.append(f'{i.text[0:3]}')
+        return attributeList
         
     def combineSign(self, sign, integer):
         if (sign == '-'):
@@ -246,12 +238,6 @@ class ElementActions(ChildElements):
             return False
         else:
             return True
-
-    def getAttributeNames(self):
-        attributeList = []
-        for i in (self.children.attributeNames()):
-            attributeList.append(f'{i.text[0:3]}')
-        return attributeList
 
     def getSaveNames(self):
         saveList = []
@@ -312,19 +298,12 @@ class ElementActions(ChildElements):
             if not self.isSaveBonusEqual(saveName):
                 fullSave.append(f'{saveName} {"{:+}".format(int(self.getSaveBonus(saveName)))}')
         return fullSave
-
-# This method formats Saving Throws into 2 columns if there is more than 3 that need to be displayed.
     
     def allSavesBlock(self):
         smallSaveBlock = self.getStandardSaveBlock()
         allSaves = '----------------------------------------\nSAVES\n'
-        if len(smallSaveBlock) > 3:
-            fullSaveBlock = self.getStandardSaveBlock()
-            for i in range(0, int(len(allSavesBlock)/2)):
-                allSaves += f'{fullSaveBlock[i]}\t{fullSaveBlock[i+3]}\n'
-        else:
-            for i in range(0, int(len(smallSaveBlock))): 
-                allSaves += smallSaveBlock[i] + '\n'
+        for i in range(0, int(len(self.getStandardSaveBlock()))):
+            allSaves += f'{self.getStandardSaveBlock()[i]}\t'
         return allSaves
 
     def allSkillsBlock(self):
