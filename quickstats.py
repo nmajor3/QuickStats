@@ -10,23 +10,23 @@ import os
 os.system('clear')
 
 # Character IDs:
-#Agnor - 354350
-#Ailith 298736
-#Arya - 354348
-#Ruby - #23559244
-#Sana #10788708
-#Typh - #607240
-#Lucky - 422436
-#Soraya - 1496718
-#Krenaxios - 46364292
-#Drusilia - 28192770
-#Akta - 58813
-#Komazur - 14820665
-#Zaag - 14820702
-#Qrix - 29117600
-#Cloron - 14820937
+# Agnor - 354350
+# Ailith 298736
+# Arya - 354348
+# Ruby - #23559244
+# Sana #10788708
+# Typh - #607240
+# Lucky - 422436
+# Soraya - 1496718
+# Krenaxios - 46364292
+# Drusilia - 28192770
+# Akta - 58813
+# Komazur - 14820665
+# Zaag - 14820702
+# Qrix - 29117600
+# Cloron - 14820937
 
-campaignCharacter =  [14820937, 14820665]#354350, 298736, 354348, 23559244, 10788708, 607240]
+campaignCharacter = [14820937, 14820665]  # 354350, 298736, 354348, 23559244, 10788708, 607240]
 standardWaitInSeconds = 10
 options = Options()
 options.add_argument("--window-size=1920,1080")
@@ -38,15 +38,17 @@ driver.implicitly_wait(0)
 def waitForElementXpath(waitTimeInSeconds, Xpath):
     return WebDriverWait(driver, waitTimeInSeconds).until(EC.presence_of_element_located((By.XPATH, Xpath)))
 
+
 def waitForElementCssSelector(waitTimeInSeconds, CssSelector):
     return WebDriverWait(driver, waitTimeInSeconds).until(EC.presence_of_element_located((By.CSS_SELECTOR, CssSelector)))
+
 
 class ParentElements:
     def __init__(self):
         pass
     
     def quickInfoParent(self):
-        return  waitForElementCssSelector(standardWaitInSeconds,'.ct-quick-info')
+        return waitForElementCssSelector(standardWaitInSeconds, '.ct-quick-info')
                                   
     def attributesCollectionParent(self):
         return self.quickInfoParent().find_elements_by_xpath('./div[1]/div')
@@ -58,7 +60,7 @@ class ParentElements:
                 return i
 
     def saveParent(self):
-        return waitForElementXpath(standardWaitInSeconds,'//section/div/div/div[2]/div/div[3]/div[1]/div[1]')
+        return waitForElementXpath(standardWaitInSeconds, '//section/div/div/div[2]/div/div[3]/div[1]/div[1]')
                                                          
     def saveCollectionParent(self):
         return self.saveParent().find_elements_by_xpath('./div[2]/div/div')
@@ -92,7 +94,7 @@ class ParentElements:
         return waitForElementXpath(standardWaitInSeconds, '//section/div[1]/div/div[2]/div/div[1]/div[1]/div/div/div/div[2]')
 
     def combatSummary(self):
-        return waitForElementXpath(standardWaitInSeconds, '//div[1]/div/div[3]/div/section/div/div/div[2]/div/div[3]')
+        return waitForElementCssSelector(standardWaitInSeconds, '.ct-combat__summary')
                                                                                                                   
 class ChildElements(ParentElements):
     def __init__(self):
@@ -105,7 +107,7 @@ class ChildElements(ParentElements):
         return self.parent.quickInfoParent().find_element_by_xpath('./div[5]/div/div[2]/div[2]/div[1]/div[2]/div')
 
     def armorClass(self):
-        return self.parent.combatSummary().find_element_by_xpath('./div[5]/div/div/div[2]/div/div[3]')
+        return self.parent.combatSummary().find_element_by_css_selector('.ddbc-armor-class-box__value')
 
     def speed(self):
         return self.parent.quickInfoParent().find_element_by_xpath('./div[3]/div/div[3]/span/span[1]')
@@ -171,7 +173,7 @@ class ChildElements(ParentElements):
 
     def skillBonus(self, skillName):
         try:
-            ele =  self.parent.skillByName(skillName).find_element_by_xpath('./div[4]/span/span[2]')
+            ele = self.parent.skillByName(skillName).find_element_by_xpath('./div[4]/span/span[2]')
             return ele
         except NoSuchElementException:
             return self.parent.skillByName(skillName).find_element_by_xpath('./div[5]/span/span[2]')
@@ -222,7 +224,7 @@ class ElementActions(ChildElements):
         return attributeList
         
     def combineSign(self, sign, integer):
-        if (sign == '-'):
+        if sign == '-':
             return int(integer) * -1
         else:
             return int(integer)
@@ -249,7 +251,7 @@ class ElementActions(ChildElements):
         return self.combineSign(self.children.saveBonusSign(saveName).text, self.children.saveBonusNumber(saveName).text)
 
     def isSaveBonusEqual(self, saveName):
-        if (self.getAttributeBonus(saveName) != self.getSaveBonus(saveName)):
+        if self.getAttributeBonus(saveName) != self.getSaveBonus(saveName):
             return False
         else:
             return True
@@ -268,7 +270,7 @@ class ElementActions(ChildElements):
 
     def isSkillBonusEqual(self, skillName):
         skillMod = self.getSkillMod(skillName)
-        if(self.getAttributeBonus(skillMod) != self.getSkillBonus(skillName)):
+        if self.getAttributeBonus(skillMod) != self.getSkillBonus(skillName):
             return False
         else:
             return True
@@ -298,7 +300,18 @@ class ElementActions(ChildElements):
             if not self.isSaveBonusEqual(saveName):
                 fullSave.append(f'{saveName} {"{:+}".format(int(self.getSaveBonus(saveName)))}')
         return fullSave
-    
+
+    # fullAttributeBlock = ele.combineAttrNameAndScore()
+    # for i in range(0, len(fullAttributeBlock), int(len(fullAttributeBlock) / 2)):
+    #    print(fullAttributeBlock[i], fullAttributeBlock[i + 1], fullAttributeBlock[i + 2])
+
+    def allAttributesBlock(self):
+        allAttributes = self.combineAttrNameAndScore()
+        for i in range(0, len(allAttributes), int(len(allAttributes) / 2)):
+            print(len(allAttributes))
+            allAttributes = f'{allAttributes[i], allAttributes[i + 1], allAttributes[i + 2]}'
+        return allAttributes
+
     def allSavesBlock(self):
         smallSaveBlock = self.getStandardSaveBlock()
         allSaves = '----------------------------------------\nSAVES\n'
@@ -310,14 +323,14 @@ class ElementActions(ChildElements):
         allSkills = '----------------------------------------\nSKILLS\n'
         for skillName in self.getSkillNames():
             if not self.isSkillBonusEqual(skillName):
-                allSkills += (f'{skillName:<18} {self.getSkillMod(skillName)}   {"{:+}".format(int(self.getSkillBonus(skillName)))}\n')
+                allSkills += f'{skillName:<18} {self.getSkillMod(skillName)}   {"{:+}".format(int(self.getSkillBonus(skillName)))}\n'
         return allSkills
 
     def allSpellsBlock(self):
         self.children.spellButtonNoWait().click
         allSpells = '----------------------------------------\nSPELLS SLOTS\nLevel  Total  Used  Available\n'
         for i in range(1, self.getNumSpellsPerLevel()):
-            allSpells += (f'{i:<6} {self.getSlotsEachLevel(i):<6} {self.getUsedSlots(i):<5} {self.getAvailableSlots(i)}\n')
+            allSpells += f'{i}|     {self.getSlotsEachLevel(i):<6} {self.getUsedSlots(i):<5} {self.getAvailableSlots(i)}\n'
         return allSpells
 
 for h in campaignCharacter:
@@ -326,9 +339,10 @@ for h in campaignCharacter:
     
     print(ele.getCharacterName())
     print('HP:',ele.getCombinedHpData(), 'AC:', ele.getArmorClass(), 'Speed:', ele.getSpeed(), 'Prof:', ele.getProficiencyBonus())
-    fullAttributeBlock = ele.combineAttrNameAndScore()
-    for i in range(0, len(fullAttributeBlock), int(len(fullAttributeBlock)/2)):
-        print(fullAttributeBlock[i], fullAttributeBlock[i+1], fullAttributeBlock[i+2])
+    #fullAttributeBlock = ele.combineAttrNameAndScore()
+    #for i in range(0, len(fullAttributeBlock), int(len(fullAttributeBlock)/2)):
+    #    print(fullAttributeBlock[i], fullAttributeBlock[i+1], fullAttributeBlock[i+2])
+    print(ele.allAttributesBlock())
     print(ele.allSavesBlock())
     print(ele.allSkillsBlock())
     print(ele.allSpellsBlock())
