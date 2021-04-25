@@ -301,16 +301,12 @@ class ElementActions(ChildElements):
                 fullSave.append(f'{saveName} {"{:+}".format(int(self.getSaveBonus(saveName)))}')
         return fullSave
 
-    # fullAttributeBlock = ele.combineAttrNameAndScore()
-    # for i in range(0, len(fullAttributeBlock), int(len(fullAttributeBlock) / 2)):
-    #    print(fullAttributeBlock[i], fullAttributeBlock[i + 1], fullAttributeBlock[i + 2])
-
     def allAttributesBlock(self):
         allAttributes = self.combineAttrNameAndScore()
+        printableString = ''
         for i in range(0, len(allAttributes), int(len(allAttributes) / 2)):
-            print(len(allAttributes))
-            allAttributes = f'{allAttributes[i], allAttributes[i + 1], allAttributes[i + 2]}'
-        return allAttributes
+            printableString += f'{allAttributes[i]} {allAttributes[i + 1]} {allAttributes[i + 2]}\n'
+        return printableString
 
     def allSavesBlock(self):
         smallSaveBlock = self.getStandardSaveBlock()
@@ -339,9 +335,6 @@ for h in campaignCharacter:
     
     print(ele.getCharacterName())
     print('HP:',ele.getCombinedHpData(), 'AC:', ele.getArmorClass(), 'Speed:', ele.getSpeed(), 'Prof:', ele.getProficiencyBonus())
-    #fullAttributeBlock = ele.combineAttrNameAndScore()
-    #for i in range(0, len(fullAttributeBlock), int(len(fullAttributeBlock)/2)):
-    #    print(fullAttributeBlock[i], fullAttributeBlock[i+1], fullAttributeBlock[i+2])
     print(ele.allAttributesBlock())
     print(ele.allSavesBlock())
     print(ele.allSkillsBlock())
