@@ -24,7 +24,7 @@ os.system('clear')
 # Qrix - 29117600
 # Cloron - 14820937
 
-campaignCharacter = [14820937, 14820665, 354350, 298736, 354348, 23559244, 10788708, 607240]
+campaignCharacter = [14820937, 14820665, 354350]
 characterName = ''
 currentHp = ''
 maxHp = ''
@@ -64,7 +64,7 @@ def waitForElementsCssSelector(waitTimeInSeconds, CssSelector):
 
 def attributeNames():
     attrNames = []
-    for i in range (0, len(waitForElementsXpath(standardWaitInSeconds, './/section/div[1]/div/div[2]/div/div[2]/div[1]/div/div/div[2]/span[1]'))):
+    for i in range(0, len(waitForElementsXpath(standardWaitInSeconds, './/section/div[1]/div/div[2]/div/div[2]/div[1]/div/div/div[2]/span[1]'))):
         attrNames.append(waitForElementsXpath(standardWaitInSeconds, './/section/div[1]/div/div[2]/div/div[2]/div[1]/div/div/div[2]/span[1]')[i].text[0:3])
     return attrNames
 
@@ -101,13 +101,13 @@ class ParentElements:
     def spellsParent(self):
         self.spellButtonWait().click()
         return waitForElementXpath(standardWaitInSeconds, '//section/div/div/div[2]/div/div[3]/div[6]')
-                                                                  
+
     def spellButtonWait(self):
         return waitForElementXpath(standardWaitInSeconds, '//section/div/div/div[2]/div/div[3]/div[6]/div/div[2]/div[1]/div[2]/span')
-                                                                                                                  
+
 class ChildElements(ParentElements):
     def __init__(self):
-        self.parent = ParentElements()
+        super().__init__()
 
     def attributeChildByName(self, attrName, cssSelectorForChild):
         elementIndex = attributesNameList.index(attrName) + 1
@@ -115,10 +115,10 @@ class ChildElements(ParentElements):
 
     def attributeBonusSign(self, attrName):
         return self.attributeChildByName(attrName, 'div:nth-child(1) > div > span > span:nth-child(1)')
-    
+
     def attributeBonusNumber(self, attrName):
         return self.attributeChildByName(attrName, 'div:nth-child(1) > div > span > span:nth-child(2)')
-                                                     
+
     def _attributeBigScore(self, attrName):
         return self.attributeChildByName(attrName, 'div:nth-child(1) > div:nth-child(3)')
 
@@ -137,7 +137,7 @@ class ChildElements(ParentElements):
         return driver.find_element_by_css_selector(f'div.ddbc-saving-throws-summary__ability:nth-child({elementIndex}) > div:nth-child(4) > span > {cssSelectorForChild}')
 
     def saveBonusSign(self, saveName):
-        return self.saveChildByName(saveName,'span:nth-child(1)')
+        return self.saveChildByName(saveName, 'span:nth-child(1)')
 
     def saveBonusNumber(self, saveName):
         return self.saveChildByName(saveName, 'span:nth-child(2)')
@@ -162,15 +162,15 @@ class ChildElements(ParentElements):
             return ele
         except NoSuchElementException:
             return self.skillChildByName(skillName, 'div:nth-child(5) > span > span:nth-child(2)')
-   
+
     ### SPELL LEVELS INCLUDES CANTRIPS AT INDEX 0!!!!
 
     def spellButtonNoWait(self):
         return driver.find_element_by_xpath('//section/div/div/div[2]/div/div[3]/div[6]/div/div[2]/div[1]/div[2]/span')
-                                        
+
     def allSpellLevels(self):
         return self.spellsParent().find_elements_by_xpath('./div/div[2]/div[2]/div/div/div[3]/div/div[2]/div/div/div[1]/div[2]/div')
-                                           
+
     def spellSlotsByLevel(self, spellLevel):
         return self.allSpellLevels()[spellLevel].find_elements_by_xpath('./div/div/div[1]/div/div')
 
@@ -179,7 +179,7 @@ class ChildElements(ParentElements):
 
 class ElementActions(ChildElements):
     def __init__(self):
-        self.children = ChildElements()
+        super().__init__()
 
     def getCharacterName(self):
         setGlobalVariables()
@@ -202,7 +202,7 @@ class ElementActions(ChildElements):
 
     def getProficiencyBonus(self):
         return f'+{proficiencyBonus.text}'
-        
+
     def combineSign(self, sign, integer):
         if sign == '-':
             return int(integer) * -1
@@ -210,10 +210,10 @@ class ElementActions(ChildElements):
             return int(integer)
 
     def getAttributeBonus(self, attrName):
-        return self.combineSign(self.children.attributeBonusSign(attrName).text, self.children.attributeBonusNumber(attrName).text)
+        return self.combineSign(self.attributeBonusSign(attrName).text, self.attributeBonusNumber(attrName).text)
 
     def getAttributeScore(self, attrName):
-        return self.children.attributeScore(attrName).text
+        return self.attributeScore(attrName).text
 
     def isAttributeBonusEqual(self, skillName):
         if self.getAttributeBonus(skillName) != self.getSkillBonus(skillName):
@@ -232,9 +232,9 @@ class ElementActions(ChildElements):
         for i in (savesNameList):
             saveList.append(i)
         return saveList
-    
+
     def getSaveBonus(self, saveName):
-        return self.combineSign(self.children.saveBonusSign(saveName).text, self.children.saveBonusNumber(saveName).text)
+        return self.combineSign(self.saveBonusSign(saveName).text, self.saveBonusNumber(saveName).text)
 
     def isSaveBonusEqual(self, saveName):
         if self.getAttributeBonus(saveName) != self.getSaveBonus(saveName):
@@ -256,10 +256,10 @@ class ElementActions(ChildElements):
         return skillList
 
     def getSkillMod(self, skillName):
-        return self.children.skillMod(skillName).text
+        return self.skillMod(skillName).text
 
     def getSkillBonus(self, skillName):
-        return self.combineSign(self.children.skillSign(skillName).text, self.children.skillBonus(skillName).text)
+        return self.combineSign(self.skillSign(skillName).text, self.skillBonus(skillName).text)
 
     def isSkillBonusEqual(self, skillName):
         skillMod = self.getSkillMod(skillName)
@@ -269,14 +269,14 @@ class ElementActions(ChildElements):
             return True
 
     def getNumSpellsPerLevel(self):
-        return len(self.children.allSpellLevels())
+        return len(self.allSpellLevels())
 
     def getSlotsEachLevel(self, spellLevel):
-        totalSlots = len(self.children.spellSlotsByLevel(spellLevel))
+        totalSlots = len(self.spellSlotsByLevel(spellLevel))
         return totalSlots
 
     def getUsedSlots(self, spellLevel):
-        return len(self.children.usedSlotsByLevel(spellLevel))
+        return len(self.usedSlotsByLevel(spellLevel))
 
     def getAvailableSlots(self, spellLevel):
         return int(self.getSlotsEachLevel(spellLevel)) - int(self.getUsedSlots(spellLevel))
@@ -303,9 +303,9 @@ class ElementActions(ChildElements):
         return allSkills
 
     def allSpellsBlock(self):
-        self.children.spellButtonNoWait().click
+        self.spellButtonNoWait().click
         allSpells = '----------------------------------------\nSPELLS SLOTS\nLevel  Total  Used  Available\n'
-        for i in range(1, self.getNumSpellsPerLevel()):
+        for i in range(1, len(self.allSpellLevels())):
             allSpells += f'{i}|     {self.getSlotsEachLevel(i):<6} {self.getUsedSlots(i):<5} {self.getAvailableSlots(i)}\n'
         return allSpells
 
@@ -313,7 +313,7 @@ for h in campaignCharacter:
     driver.get(f'https://www.dndbeyond.com/characters/{h}/json')
     ele = ElementActions()
     print(ele.getCharacterName())
-    print('HP:',ele.getCombinedHpData(), 'AC:', ele.getArmorClass(), 'Speed:', ele.getSpeed(), 'Prof:', ele.getProficiencyBonus())
+    print('HP:', ele.getCombinedHpData(), 'AC:', ele.getArmorClass(), 'Speed:', ele.getSpeed(), 'Prof:', ele.getProficiencyBonus())
     print(ele.allAttributesBlock())
     print(ele.allSavesBlock())
     print(ele.allSkillsBlock())
