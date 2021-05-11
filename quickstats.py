@@ -1,6 +1,4 @@
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver import Chrome
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
@@ -26,7 +24,23 @@ os.system('clear')
 # Qrix - 29117600
 # Cloron - 14820937
 
-campaignCharacter = [14820937, 14820665]  # 354350, 298736, 354348, 23559244, 10788708, 607240]
+campaignCharacter = [14820937, 14820665, 354350, 298736, 354348, 23559244, 10788708, 607240]
+characterName = ''
+currentHp = ''
+maxHp = ''
+armorClass = ''
+speed = ''
+proficiencyBonus = ''
+attributesNameList = []
+attributesScoreList = []
+attributesBonusList = []
+savesNameList = []
+savesBonusList = []
+skillsNameList = []
+skillsBonusList = []
+spellSlotsTotal = ''
+spellSlotsUsed = ''
+spellSlotsAvailable = ''
 standardWaitInSeconds = 10
 options = Options()
 options.add_argument("--window-size=1920,1080")
@@ -34,54 +48,55 @@ options.add_argument('--headless')
 driver = webdriver.Chrome(options=options)
 driver.implicitly_wait(0)
 
-   
 def waitForElementXpath(waitTimeInSeconds, Xpath):
     return WebDriverWait(driver, waitTimeInSeconds).until(EC.presence_of_element_located((By.XPATH, Xpath)))
 
+def waitForElementsXpath(waitTimeInSeconds, Xpath):
+    WebDriverWait(driver, waitTimeInSeconds).until(EC.presence_of_element_located((By.XPATH, Xpath)))
+    return driver.find_elements_by_xpath(Xpath)
 
 def waitForElementCssSelector(waitTimeInSeconds, CssSelector):
     return WebDriverWait(driver, waitTimeInSeconds).until(EC.presence_of_element_located((By.CSS_SELECTOR, CssSelector)))
 
+def waitForElementsCssSelector(waitTimeInSeconds, CssSelector):
+    WebDriverWait(driver, waitTimeInSeconds).until(EC.presence_of_element_located((By.CSS_SELECTOR, CssSelector)))
+    return driver.find_elements_by_css_selector(CssSelector)
+
+def attributeNames():
+    attrNames = []
+    for i in range (0, len(waitForElementsXpath(standardWaitInSeconds, './/section/div[1]/div/div[2]/div/div[2]/div[1]/div/div/div[2]/span[1]'))):
+        attrNames.append(waitForElementsXpath(standardWaitInSeconds, './/section/div[1]/div/div[2]/div/div[2]/div[1]/div/div/div[2]/span[1]')[i].text[0:3])
+    return attrNames
+
+def setGlobalVariables():
+    global characterName
+    global currentHp
+    global maxHp
+    global armorClass
+    global speed
+    global proficiencyBonus
+    global attributesNameList
+    global savesNameList
+    global skillsNameList
+    characterName = waitForElementCssSelector(standardWaitInSeconds, '.ddbc-character-name')
+    currentHp = waitForElementCssSelector(standardWaitInSeconds, 'div.ct-health-summary__hp-item:nth-child(1) > div:nth-child(2) > div')
+    maxHp = waitForElementCssSelector(standardWaitInSeconds, 'div.ct-health-summary__hp-item:nth-child(3) > div:nth-child(2) > div:nth-child(1)')
+    armorClass = waitForElementCssSelector(standardWaitInSeconds, '.ddbc-armor-class-box__value')
+    speed = waitForElementCssSelector(standardWaitInSeconds, '.ddbc-distance-number--large > span:nth-child(1)')
+    proficiencyBonus = waitForElementCssSelector(standardWaitInSeconds, '.ct-proficiency-bonus-box__value > span:nth-child(1) > span:nth-child(2)')
+    attributesNameList = []
+    for i in range(0, len(waitForElementsXpath(standardWaitInSeconds, './/section/div[1]/div/div[2]/div/div[2]/div[1]/div/div/div[2]/span[1]'))):
+        attributesNameList.append(waitForElementsXpath(standardWaitInSeconds, './/section/div[1]/div/div[2]/div/div[2]/div[1]/div/div/div[2]/span[1]')[i].text[0:3])
+    savesNameList = []
+    for i in range(0, len(waitForElementsCssSelector(standardWaitInSeconds, 'div.ddbc-saving-throws-summary__ability'))):
+        savesNameList.append(waitForElementsCssSelector(standardWaitInSeconds, 'div.ddbc-saving-throws-summary__ability > div:nth-child(3)')[i].text)
+    skillsNameList = []
+    for i in range(0, len(waitForElementsCssSelector(standardWaitInSeconds, 'div.ct-skills__item > div:nth-child(3)'))):
+        skillsNameList.append(waitForElementsCssSelector(standardWaitInSeconds, 'div.ct-skills__item > div:nth-child(3)')[i].text)
 
 class ParentElements:
     def __init__(self):
         pass
-    
-    def quickInfoParent(self):
-        return waitForElementCssSelector(standardWaitInSeconds, '.ct-quick-info')
-                                  
-    def attributesCollectionParent(self):
-        return self.quickInfoParent().find_elements_by_xpath('./div[1]/div')
-
-    def attributeByName(self, attrName):
-        for i in (self.attributesCollectionParent()):
-            ele = i.find_element_by_xpath('./div/div[2]/span[1]')
-            if attrName in ele.text:
-                return i
-
-    def saveParent(self):
-        return waitForElementXpath(standardWaitInSeconds, '//section/div/div/div[2]/div/div[3]/div[1]/div[1]')
-                                                         
-    def saveCollectionParent(self):
-        return self.saveParent().find_elements_by_xpath('./div[2]/div/div')
-    
-    def saveByName(self, saveName):
-        for i in (self.saveCollectionParent()):
-            ele = i.find_element_by_xpath('./div[3]')
-            if ele.text == saveName:
-                return i
-                                                                 
-    def skillsParent(self):
-        return driver.find_element_by_xpath('//section/div/div/div[2]/div/div[3]/div[4]/div[1]/div[2]')
-    
-    def skillsCollectionParent(self):
-        return self.skillsParent().find_elements_by_xpath('./div[2]/div[@class="ct-skills__item"]')
-                
-    def skillByName(self, skillName):
-        for i in (driver.find_elements_by_css_selector('div.ct-skills__item')):
-            ele = i.find_element_by_xpath('./div[3]')
-            if ele.text == skillName:
-                return i
 
     def spellsParent(self):
         self.spellButtonWait().click()
@@ -89,52 +104,26 @@ class ParentElements:
                                                                   
     def spellButtonWait(self):
         return waitForElementXpath(standardWaitInSeconds, '//section/div/div/div[2]/div/div[3]/div[6]/div/div[2]/div[1]/div[2]/span')
-
-    def characterTidbits(self):
-        return waitForElementXpath(standardWaitInSeconds, '//section/div[1]/div/div[2]/div/div[1]/div[1]/div/div/div/div[2]')
-
-    def combatSummary(self):
-        return waitForElementCssSelector(standardWaitInSeconds, '.ct-combat__summary')
                                                                                                                   
 class ChildElements(ParentElements):
     def __init__(self):
         self.parent = ParentElements()
 
-    def characterName(self):
-        return self.parent.characterTidbits().find_element_by_xpath('./div[1]/div[1]')
+    def attributeChildByName(self, attrName, cssSelectorForChild):
+        elementIndex = attributesNameList.index(attrName) + 1
+        return driver.find_element_by_css_selector(f'div.ct-quick-info__abilities > div:nth-child({elementIndex}) > {cssSelectorForChild}')
 
-    def currentHp(self):
-        return self.parent.quickInfoParent().find_element_by_xpath('./div[5]/div/div[2]/div[2]/div[1]/div[2]/div')
-
-    def armorClass(self):
-        return self.parent.combatSummary().find_element_by_css_selector('.ddbc-armor-class-box__value')
-
-    def speed(self):
-        return self.parent.quickInfoParent().find_element_by_xpath('./div[3]/div/div[3]/span/span[1]')
-                                         
-    def maxHp(self):
-        return self.parent.quickInfoParent().find_element_by_xpath('./div[5]/div/div[2]/div[2]/div[3]/div[2]/div')
-                                                                  
-    def proficiencyBonus(self):
-        return self.parent.quickInfoParent().find_element_by_xpath('./div[2]/div/div[3]/span/span[2]')
-
-    def attributeNames(self):
-        attributeNameList = []
-        for i in (self.parent.attributesCollectionParent()):
-            attributeNameList.append(i.find_element_by_xpath('./div/div[2]/span[1]'))
-        return attributeNameList
-    
     def attributeBonusSign(self, attrName):
-        return self.parent.attributeByName(attrName).find_element_by_css_selector('div.ct-quick-info__ability > div:nth-child(1) > div > span > span:nth-child(1)')
+        return self.attributeChildByName(attrName, 'div:nth-child(1) > div > span > span:nth-child(1)')
     
     def attributeBonusNumber(self, attrName):
-        return self.parent.attributeByName(attrName).find_element_by_css_selector('div.ct-quick-info__ability > div:nth-child(1) > div > span > span:nth-child(2)')
+        return self.attributeChildByName(attrName, 'div:nth-child(1) > div > span > span:nth-child(2)')
                                                      
     def _attributeBigScore(self, attrName):
-        return self.parent.attributeByName(attrName).find_element_by_css_selector('div.ct-quick-info__ability > div:nth-child(1) > div:nth-child(3)')
+        return self.attributeChildByName(attrName, 'div:nth-child(1) > div:nth-child(3)')
 
     def _attributeSmallScore(self, attrName):
-        return self.parent.attributeByName(attrName).find_element_by_css_selector('div.ct-quick-info__ability > div:nth-child(1) > div:nth-child(4)')
+        return self.attributeChildByName(attrName, 'div:nth-child(1) > div:nth-child(4)')
 
     def attributeScore(self, attrName):
         try:
@@ -143,40 +132,36 @@ class ChildElements(ParentElements):
         except ValueError:
             return self._attributeSmallScore(attrName)
 
-    def saveNames(self):
-        saveNamesList = []
-        for i in (self.parent.saveCollectionParent()):
-            saveNamesList.append(i.find_element_by_xpath('./div[3]'))
-        return saveNamesList
+    def saveChildByName(self, saveName, cssSelectorForChild):
+        elementIndex = savesNameList.index(saveName) + 1
+        return driver.find_element_by_css_selector(f'div.ddbc-saving-throws-summary__ability:nth-child({elementIndex}) > div:nth-child(4) > span > {cssSelectorForChild}')
 
     def saveBonusSign(self, saveName):
-        return self.parent.saveByName(saveName).find_element_by_xpath('./div[4]/span/span[1]')
+        return self.saveChildByName(saveName,'span:nth-child(1)')
 
     def saveBonusNumber(self, saveName):
-        return self.parent.saveByName(saveName).find_element_by_xpath('./div[4]/span/span[2]')
+        return self.saveChildByName(saveName, 'span:nth-child(2)')
 
-    def skillNames(self):
-        skillNamesList = []
-        for skillElement in (self.parent.skillsCollectionParent()):
-            skillNamesList.append(skillElement.find_element_by_xpath('./div[3]'))
-        return skillNamesList
+    def skillChildByName(self, skillName, cssSelectorForChild):
+        elementIndex = skillsNameList.index(skillName) + 1
+        return driver.find_element_by_css_selector(f'div.ct-skills__item:nth-child({elementIndex}) > {cssSelectorForChild}')
 
     def skillMod(self, skillName):
-        return self.parent.skillByName(skillName).find_element_by_xpath('./div[2]')
+        return self.skillChildByName(skillName, 'div:nth-child(2)')
 
     def skillSign(self, skillName):
         try:
-            ele = self.parent.skillByName(skillName).find_element_by_xpath('./div[4]/span/span[1]')
+            ele = self.skillChildByName(skillName, 'div:nth-child(4) > span > span:nth-child(1)')
             return ele
         except NoSuchElementException:
-            return self.parent.skillByName(skillName).find_element_by_xpath('./div[5]/span/span[1]')
+            return self.skillChildByName(skillName, 'div:nth-child(5) > span > span:nth-child(1)')
 
     def skillBonus(self, skillName):
         try:
-            ele = self.parent.skillByName(skillName).find_element_by_xpath('./div[4]/span/span[2]')
+            ele = self.skillChildByName(skillName, 'div:nth-child(4) > span > span:nth-child(2)')
             return ele
         except NoSuchElementException:
-            return self.parent.skillByName(skillName).find_element_by_xpath('./div[5]/span/span[2]')
+            return self.skillChildByName(skillName, 'div:nth-child(5) > span > span:nth-child(2)')
    
     ### SPELL LEVELS INCLUDES CANTRIPS AT INDEX 0!!!!
 
@@ -197,31 +182,26 @@ class ElementActions(ChildElements):
         self.children = ChildElements()
 
     def getCharacterName(self):
-        return self.children.characterName().text
+        setGlobalVariables()
+        return characterName.text
 
     def getCurrentHp(self):
-        return self.children.currentHp().text
+        return currentHp.text
 
     def getMaxHp(self):
-        return self.children.maxHp().text
+        return maxHp.text
 
     def getCombinedHpData(self):
         return f'{ele.getCurrentHp()}/{ele.getMaxHp()}'
 
     def getArmorClass(self):
-        return self.children.armorClass().text
+        return armorClass.text
 
     def getSpeed(self):
-        return f'{self.children.speed().text}ft.'
+        return f'{speed.text}ft.'
 
     def getProficiencyBonus(self):
-        return f'+{self.children.proficiencyBonus().text}'
-
-    def getAttributeNames(self):
-        attributeList = []
-        for i in (self.children.attributeNames()):
-            attributeList.append(f'{i.text[0:3]}')
-        return attributeList
+        return f'+{proficiencyBonus.text}'
         
     def combineSign(self, sign, integer):
         if sign == '-':
@@ -236,15 +216,21 @@ class ElementActions(ChildElements):
         return self.children.attributeScore(attrName).text
 
     def isAttributeBonusEqual(self, skillName):
-        if self.getAttributeBonus(skillName) !=  self.getSkillBonus(skillName):
+        if self.getAttributeBonus(skillName) != self.getSkillBonus(skillName):
             return False
         else:
             return True
 
+    def combineAttrNameAndScore(self):
+        fullAttribute = []
+        for attributeName in (attributesNameList):
+            fullAttribute.append(f'{attributeName[0:3]}: {"{:2d}".format(int(self.getAttributeScore(attributeName)))} {"({:+})".format(int(self.getAttributeBonus(attributeName)))}')
+        return fullAttribute
+
     def getSaveNames(self):
         saveList = []
-        for i in (self.children.saveNames()):
-            saveList.append(i.text)
+        for i in (savesNameList):
+            saveList.append(i)
         return saveList
     
     def getSaveBonus(self, saveName):
@@ -256,10 +242,17 @@ class ElementActions(ChildElements):
         else:
             return True
 
+    def getStandardSaveBlock(self):
+        fullSave = []
+        for saveName in (self.getSaveNames()):
+            if not self.isSaveBonusEqual(saveName):
+                fullSave.append(f'{saveName} {"{:+}".format(int(self.getSaveBonus(saveName)))}')
+        return fullSave
+
     def getSkillNames(self):
         skillList = []
-        for i in (self.children.skillNames()):
-            skillList.append(i.text)
+        for i in (skillsNameList):
+            skillList.append(i)
         return skillList
 
     def getSkillMod(self, skillName):
@@ -287,19 +280,6 @@ class ElementActions(ChildElements):
 
     def getAvailableSlots(self, spellLevel):
         return int(self.getSlotsEachLevel(spellLevel)) - int(self.getUsedSlots(spellLevel))
-
-    def combineAttrNameAndScore(self):
-        fullAttribute = []
-        for attributeName in (self.getAttributeNames()):
-            fullAttribute.append(f'{attributeName[0:3]}: {"{:2d}".format(int(self.getAttributeScore(attributeName)))} {"({:+})".format(int(self.getAttributeBonus(attributeName)))}')
-        return fullAttribute
-
-    def getStandardSaveBlock(self):
-        fullSave = []
-        for saveName in (self.getSaveNames()):
-            if not self.isSaveBonusEqual(saveName):
-                fullSave.append(f'{saveName} {"{:+}".format(int(self.getSaveBonus(saveName)))}')
-        return fullSave
 
     def allAttributesBlock(self):
         allAttributes = self.combineAttrNameAndScore()
@@ -332,7 +312,6 @@ class ElementActions(ChildElements):
 for h in campaignCharacter:
     driver.get(f'https://www.dndbeyond.com/characters/{h}/json')
     ele = ElementActions()
-    
     print(ele.getCharacterName())
     print('HP:',ele.getCombinedHpData(), 'AC:', ele.getArmorClass(), 'Speed:', ele.getSpeed(), 'Prof:', ele.getProficiencyBonus())
     print(ele.allAttributesBlock())
