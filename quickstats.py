@@ -5,6 +5,7 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import os
+
 os.system('clear')
 
 # Character IDs:
@@ -24,7 +25,7 @@ os.system('clear')
 # Qrix - 29117600
 # Cloron - 14820937
 
-campaignCharacter = [14820937, 14820665, 354350]
+campaignCharacter = [23559244, 607240]
 characterName = ''
 currentHp = ''
 maxHp = ''
@@ -32,12 +33,8 @@ armorClass = ''
 speed = ''
 proficiencyBonus = ''
 attributesNameList = []
-attributesScoreList = []
-attributesBonusList = []
 savesNameList = []
-savesBonusList = []
 skillsNameList = []
-skillsBonusList = []
 spellSlotsTotal = ''
 spellSlotsUsed = ''
 spellSlotsAvailable = ''
@@ -94,18 +91,7 @@ def setGlobalVariables():
     for i in range(0, len(waitForElementsCssSelector(standardWaitInSeconds, 'div.ct-skills__item > div:nth-child(3)'))):
         skillsNameList.append(waitForElementsCssSelector(standardWaitInSeconds, 'div.ct-skills__item > div:nth-child(3)')[i].text)
 
-class ParentElements:
-    def __init__(self):
-        pass
-
-    def spellsParent(self):
-        self.spellButtonWait().click()
-        return waitForElementXpath(standardWaitInSeconds, '//section/div/div/div[2]/div/div[3]/div[6]')
-
-    def spellButtonWait(self):
-        return waitForElementXpath(standardWaitInSeconds, '//section/div/div/div[2]/div/div[3]/div[6]/div/div[2]/div[1]/div[2]/span')
-
-class ChildElements(ParentElements):
+class Elements():
     def __init__(self):
         super().__init__()
 
@@ -164,9 +150,15 @@ class ChildElements(ParentElements):
             return self.skillChildByName(skillName, 'div:nth-child(5) > span > span:nth-child(2)')
 
     ### SPELL LEVELS INCLUDES CANTRIPS AT INDEX 0!!!!
+    def spellButtonWait(self):
+        return waitForElementXpath(standardWaitInSeconds, '//section/div/div/div[2]/div/div[3]/div[6]/div/div[2]/div[1]/div[2]/span')
 
     def spellButtonNoWait(self):
         return driver.find_element_by_xpath('//section/div/div/div[2]/div/div[3]/div[6]/div/div[2]/div[1]/div[2]/span')
+
+    def spellsParent(self):
+        self.spellButtonWait().click()
+        return waitForElementXpath(standardWaitInSeconds, '//section/div/div/div[2]/div/div[3]/div[6]')
 
     def allSpellLevels(self):
         return self.spellsParent().find_elements_by_xpath('./div/div[2]/div[2]/div/div/div[3]/div/div[2]/div/div/div[1]/div[2]/div')
@@ -177,22 +169,14 @@ class ChildElements(ParentElements):
     def usedSlotsByLevel(self, spellLevel):
         return self.allSpellLevels()[spellLevel].find_elements_by_xpath('./div/div/div/div/div[@class="ct-slot-manager__slot ct-slot-manager__slot--used"]')
 
-class ElementActions(ChildElements):
+class ElementActions(Elements):
     def __init__(self):
         super().__init__()
 
-    def getCharacterName(self):
-        setGlobalVariables()
-        return characterName.text
-
-    def getCurrentHp(self):
-        return currentHp.text
-
-    def getMaxHp(self):
-        return maxHp.text
-
     def getCombinedHpData(self):
-        return f'{ele.getCurrentHp()}/{ele.getMaxHp()}'
+        global currentHp
+        global maxHp
+        return f'{currentHp.text}/{maxHp.text}'
 
     def getArmorClass(self):
         return armorClass.text
@@ -224,7 +208,8 @@ class ElementActions(ChildElements):
     def combineAttrNameAndScore(self):
         fullAttribute = []
         for attributeName in (attributesNameList):
-            fullAttribute.append(f'{attributeName[0:3]}: {"{:2d}".format(int(self.getAttributeScore(attributeName)))} {"({:+})".format(int(self.getAttributeBonus(attributeName)))}')
+            fullAttribute.append(
+                f'{attributeName[0:3]}: {"{:2d}".format(int(self.getAttributeScore(attributeName)))} {"({:+})".format(int(self.getAttributeBonus(attributeName)))}')
         return fullAttribute
 
     def getSaveNames(self):
@@ -303,7 +288,6 @@ class ElementActions(ChildElements):
         return allSkills
 
     def allSpellsBlock(self):
-        self.spellButtonNoWait().click
         allSpells = '----------------------------------------\nSPELLS SLOTS\nLevel  Total  Used  Available\n'
         for i in range(1, len(self.allSpellLevels())):
             allSpells += f'{i}|     {self.getSlotsEachLevel(i):<6} {self.getUsedSlots(i):<5} {self.getAvailableSlots(i)}\n'
@@ -312,7 +296,8 @@ class ElementActions(ChildElements):
 for h in campaignCharacter:
     driver.get(f'https://www.dndbeyond.com/characters/{h}/json')
     ele = ElementActions()
-    print(ele.getCharacterName())
+    setGlobalVariables()
+    print(characterName.text)
     print('HP:', ele.getCombinedHpData(), 'AC:', ele.getArmorClass(), 'Speed:', ele.getSpeed(), 'Prof:', ele.getProficiencyBonus())
     print(ele.allAttributesBlock())
     print(ele.allSavesBlock())
