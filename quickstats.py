@@ -9,6 +9,13 @@ import os
 os.system('clear')
 
 # Character IDs:
+skt = [354350, 298736, 354348, 23559244, 10788708, 607240]
+tiamat = [58813, 28192770, 46364292, 422436, 1496718]
+trouble = [30456274, 29117600, 12203392]
+curse = [31286942, 10111812, 28352221, 10107920, 10262697]
+
+campaignCharacter = curse
+
 # Agnor - 354350
 # Ailith 298736
 # Arya - 354348
@@ -20,12 +27,18 @@ os.system('clear')
 # Krenaxios - 46364292
 # Drusilia - 28192770
 # Akta - 58813
+# Kaeleth - 30456274
+# Qrix - 29117600
+# Rhurrk - 12203392
+# Carris - 31286942
+# Faerbor - 10111812
+# Monk - 28352221
+# Tail - 10107920
+# Veil - 10262697
+# Cloron - 14820937
 # Komazur - 14820665
 # Zaag - 14820702
-# Qrix - 29117600
-# Cloron - 14820937
 
-campaignCharacter = [23559244, 607240]
 characterName = ''
 currentHp = ''
 maxHp = ''
@@ -158,7 +171,7 @@ class Elements():
 
     def spellsParent(self):
         self.spellButtonWait().click()
-        return waitForElementXpath(standardWaitInSeconds, '//section/div/div/div[2]/div/div[3]/div[6]')
+        return waitForElementCssSelector(standardWaitInSeconds, 'div.ct-subsection:nth-child(6)')
 
     def allSpellLevels(self):
         return self.spellsParent().find_elements_by_xpath('./div/div[2]/div[2]/div/div/div[3]/div/div[2]/div/div/div[1]/div[2]/div')
@@ -302,7 +315,8 @@ for h in campaignCharacter:
     print(ele.allAttributesBlock())
     print(ele.allSavesBlock())
     print(ele.allSkillsBlock())
-    print(ele.allSpellsBlock())
+    if (ele.spellButtonNoWait().text == 'SPELLS'):
+        print(ele.allSpellsBlock())
     print('\n=========================================================')
 
 driver.close()
